@@ -5,10 +5,10 @@
             "name": "STM32F103C8T6 (Blue Pill)",
             "includePath": [
                 "${workspaceFolder}/Core/Inc",
-                "${workspaceFolder}/../STM32CubeF1/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
-                "${workspaceFolder}/../STM32CubeF1/Drivers/CMSIS/Include",
-                "${workspaceFolder}/../STM32CubeF1/Drivers/STM32F1xx_HAL_Driver/Inc",
-                "${workspaceFolder}/../STM32CubeF1/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy"
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+                "${workspaceFolder}/Drivers/CMSIS/Include",
+                "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

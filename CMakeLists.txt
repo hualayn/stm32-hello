@@ -11,13 +11,14 @@ cmake_minimum_required(VERSION 3.15)
 #   flash:     openocd -f interface/stlink.cfg -f target/stm32f1x.cfg \
 #                -c "program build/stm32_hello.bin 0x08000000 verify reset exit"
 #
-# The HAL/CMSIS driver sources are NOT copied into this project; they are
-# referenced from the STM32CubeF1 checkout. Override its location with:
-#   -DCUBE_DIR=/path/to/STM32CubeF1   (default: ../STM32CubeF1)
+# Self-contained: the CMSIS + HAL driver trees are vendored in this project
+# under Drivers/. CUBE_DIR points at that directory and can be overridden to
+# use an external checkout:
+#   -DCUBE_DIR=/path/to/STM32CubeF1/Drivers
 # ---------------------------------------------------------------------------
 
 if(NOT DEFINED CUBE_DIR)
-  set(CUBE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../STM32CubeF1")
+  set(CUBE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Drivers")
 endif()
 
 set(TARGET_NAME stm32_hello)
@@ -27,7 +28,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # ---- Sources ---------------------------------------------------------------
-set(HAL_SRC "${CUBE_DIR}/Drivers/STM32F1xx_HAL_Driver/Src")
+set(HAL_SRC "${CUBE_DIR}/STM32F1xx_HAL_Driver/Src")
 
 add_executable(${TARGET_NAME}
   Core/Src/main.c
@@ -44,10 +45,10 @@ add_executable(${TARGET_NAME}
 
 target_include_directories(${TARGET_NAME} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc
-  ${CUBE_DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include
-  ${CUBE_DIR}/Drivers/CMSIS/Include
-  ${CUBE_DIR}/Drivers/STM32F1xx_HAL_Driver/Inc
-  ${CUBE_DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
+  ${CUBE_DIR}/CMSIS/Device/ST/STM32F1xx/Include
+  ${CUBE_DIR}/CMSIS/Include
+  ${CUBE_DIR}/STM32F1xx_HAL_Driver/Inc
+  ${CUBE_DIR}/STM32F1xx_HAL_Driver/Inc/Legacy
 )
 
 target_compile_definitions(${TARGET_NAME} PRIVATE
