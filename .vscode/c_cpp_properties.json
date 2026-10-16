@@ -1,0 +1,26 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "STM32F103C8T6 (Blue Pill)",
+            "includePath": [
+                "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/../STM32CubeF1/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+                "${workspaceFolder}/../STM32CubeF1/Drivers/CMSIS/Include",
+                "${workspaceFolder}/../STM32CubeF1/Drivers/STM32F1xx_HAL_Driver/Inc",
+                "${workspaceFolder}/../STM32CubeF1/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy"
+            ],
+            "defines": [
+                "USE_HAL_DRIVER",
+                "STM32F103xB"
+            ],
+            "compilerPath": "E:/arm-gnu-toolchain-15.3.rel2-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mcpu=cortex-m3",
+                "-mthumb"
+            ],
+            "cStandard": "c11",
+            "intelliSenseMode": "gcc-x86"
+        }
+    ]
+}

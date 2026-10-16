@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [
+                "-j4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "flash",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [
+                "flash"
+            ],
+            "dependsOn": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "mingw32-make",
+            "args": [
+                "clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "openocd-session",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/stlink-v2.cfg",
+                "-f",
+                "target/stm32f1x.cfg",
+                "-c",
+                "init; reset halt"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": "openocd-startup"
+            }
+        }
+    ]
+}
