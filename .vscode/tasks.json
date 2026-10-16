@@ -2,12 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "cmake-configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B", "build",
+                "-S", ".",
+                "-G", "Ninja",
+                "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/cmake/arm-none-eabi.cmake"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "build",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "cmake",
             "args": [
-                "-j4"
+                "--build", "build"
             ],
+            "dependsOn": "cmake-configure",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -19,9 +32,12 @@
         {
             "label": "flash",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "openocd",
             "args": [
-                "flash"
+                "-f", "interface/stlink.cfg",
+                "-f", "target/stm32f1x.cfg",
+                "-c",
+                "program ${workspaceFolder}/build/stm32_hello.bin 0x08000000 verify reset exit"
             ],
             "dependsOn": "build",
             "problemMatcher": []
@@ -29,9 +45,10 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "mingw32-make",
+            "command": "cmake",
             "args": [
-                "clean"
+                "--build", "build",
+                "--target", "clean"
             ],
             "problemMatcher": []
         },
@@ -40,10 +57,8 @@
             "type": "shell",
             "command": "openocd",
             "args": [
-                "-f",
-                "interface/stlink.cfg",
-                "-f",
-                "target/stm32f1x.cfg",
+                "-f", "interface/stlink.cfg",
+                "-f", "target/stm32f1x.cfg",
                 "-c",
                 "init; reset halt"
             ],
