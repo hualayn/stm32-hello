@@ -92,7 +92,7 @@ $(OUTPUT).hex: $(OUTPUT).elf
 
 # Flash via OpenOCD + ST-Link V2 (blue pill: stm32f1x target, 64K @ 0x08000000)
 flash: $(OUTPUT).bin
-	openocd -f interface/stlink-v2.cfg -f target/stm32f1x.cfg \
+	openocd -f interface/stlink.cfg -f target/stm32f1x.cfg \
 		-c "program $(OUTPUT).bin 0x08000000 verify reset exit"
 
 program: flash

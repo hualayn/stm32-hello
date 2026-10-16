@@ -26,7 +26,7 @@ extern "C" {
 #define LED_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
-#define BLINK_PERIOD_MS   500
+#define BLINK_PERIOD_MS   1000
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

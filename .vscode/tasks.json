@@ -41,7 +41,7 @@
             "command": "openocd",
             "args": [
                 "-f",
-                "interface/stlink-v2.cfg",
+                "interface/stlink.cfg",
                 "-f",
                 "target/stm32f1x.cfg",
                 "-c",
