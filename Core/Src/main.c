@@ -6,22 +6,30 @@
   *
   *                   Hand-written equivalent of the CubeMX-generated code:
   *                     - System clock: 72 MHz from 8 MHz HSE crystal (PLL x9)
-  *                     - GPIO:         PC13 push-pull output driving the
-  *                                    onboard LED (active LOW), 500 ms blink
+  *                     - GPIO:         PA6 push-pull output driving an external
+  *                                    LED (active HIGH), 500 ms blink
+  *                     - OLED:         0.96" SSD1306 (128x64) on software I2C,
+  *                                    PB8 = SCL, PB9 = SDA, shows "hello world"
   ******************************************************************************
   */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "oled_i2c.h"
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+/* Kept in RAM for on-the-fly debugging: 0 = OLED found & inited,
+ * -1 = no I2C ACK at 0x78/0x3C, -2 = NACK during init sequence. */
+volatile int oled_rc = -99;
+volatile uint32_t oled_step; /* marquee frame counter (debugger-visible) */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void DelayMs(uint32_t ms);
 void Error_Handler(void);
 
 /**
@@ -42,12 +50,40 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
 
+  /* 0.96" SSD1306 OLED on software I2C (PB8=SCL, PB9=SDA) */
+  oled_rc = OLED_Init();
+
   /* USER CODE BEGIN WHILE */
+  /* "hello world" marquee: enters from the right, scrolls left, exits,
+   * pauses briefly, then starts again. */
+  const char *msg = "hello world";
+  const int16_t msg_w = 6 * 11;    /* 6 px advance x 11 chars = 66 px */
+  int16_t x = (int16_t)OLED_WIDTH; /* start fully off-screen right */
+  oled_step = 0U;
+  uint32_t step = 0U;
   while (1)
   {
-    /* PC13 LED is active low: output LOW = LED ON, HIGH = LED OFF. */
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    HAL_Delay(BLINK_PERIOD_MS);
+    if (oled_rc == 0)
+    {
+      OLED_FillScreen(0x00);
+      OLED_ShowString(x, 28, msg); /* 8-row font, vertically centered */
+      OLED_Refresh();              /* ~230 ms I2C push = the frame pace */
+      x -= 2;
+      if (x + msg_w - 1 < 0) /* last pixel off the left edge */
+      {
+        DelayMs(1500); /* beat of darkness between passes */
+        x = (int16_t)OLED_WIDTH;
+      }
+    }
+    else
+    {
+      DelayMs(BLINK_PERIOD_MS); /* no display: just wait */
+    }
+    if ((step++ & 1U) == 0U) /* PA6 LED: toggle ~every 500 ms */
+    {
+      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    }
+    oled_step++;
   }
   /* USER CODE END WHILE */
 
@@ -96,7 +132,8 @@ void SystemClock_Config(void)
 
 /**
   * @brief GPIO Initialization Function
-  *        PC13 -> push-pull output, initialized ON (LOW)
+  *        LED pin (LED_GPIO_Port/LED_Pin, see main.h) -> push-pull output,
+  *        initialized ON (HIGH for the external PA6 LED, anode on PA6)
   * @param None
   * @retval None
   */
@@ -104,16 +141,38 @@ static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  /* GPIO Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
+  /* Enable the clock of the LED's GPIO port (port-agnostic) */
+  if (LED_GPIO_Port == GPIOA)        { __HAL_RCC_GPIOA_CLK_ENABLE(); }
+  else if (LED_GPIO_Port == GPIOB)   { __HAL_RCC_GPIOB_CLK_ENABLE(); }
+  else if (LED_GPIO_Port == GPIOC)   { __HAL_RCC_GPIOC_CLK_ENABLE(); }
+  else if (LED_GPIO_Port == GPIOD)   { __HAL_RCC_GPIOD_CLK_ENABLE(); }
+  else                               { Error_Handler(); }
 
   /* Bring the LED on before the pin is released as output */
-  HAL_GPIO_WritePin(GPIOC, LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 
   GPIO_InitStruct.Pin   = LED_Pin;
   GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+}
+
+/**
+  * @brief  SysTick-free blocking delay (CPU cycle counting, 72 MHz).
+  *
+  *         This board's clone silicon has a history of corrupted SCB/SysTick
+  *         registers at runtime; HAL_Delay would then hang forever. A pure
+  *         busy-wait cannot hang. Accuracy: +/-20% (fine for a blink).
+  * @param  ms delay in milliseconds
+  * @retval None
+  */
+static void DelayMs(uint32_t ms)
+{
+  volatile uint32_t i = ms * 12000U; /* ~12M loop iterations/s at 72 MHz */
+  while (i--)
+  {
+    __NOP();
+  }
 }
 
 /**

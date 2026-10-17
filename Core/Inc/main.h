@@ -22,11 +22,11 @@ extern "C" {
 /* Private defines -----------------------------------------------------------*/
 /* Onboard LED of the STM32F103C8T6 "Blue Pill" board: PC13, active LOW.
    If your board wires the LED to another pin, change these two lines. */
-#define LED_Pin       GPIO_PIN_13
-#define LED_GPIO_Port GPIOC
+#define LED_Pin       GPIO_PIN_6
+#define LED_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
-#define BLINK_PERIOD_MS   1000
+#define BLINK_PERIOD_MS   500
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

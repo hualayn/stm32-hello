@@ -6,3 +6,6 @@ build/
 *.hex
 *.map
 *.lst
+
+# VS Code local IntelliSense config (machine-specific toolchain paths)
+.vscode/c_cpp_properties.json
