@@ -1,0 +1,41 @@
+---
+# Project C/C++ style for the VS Code C/C++ extension (built-in clang-format).
+# Matches the existing code: 2-space indent, Allman braces, pointers on the
+# name side. Comments are never reflowed and includes are never re-sorted,
+# so hand-formatted blocks (font tables, banners) stay untouched.
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 80
+
+# Braces on their own line: "if (x)\n{"
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# "uint8_t *g" (asterisk next to the name)
+PointerAlignment: Right
+DerivePointerAlignment: false
+
+# "if (x)" with a space, function calls without: f(x)
+SpaceBeforeParens: ControlStatements
+
+# Keep hand-written layout of includes and comments
+SortIncludes: false
+IncludeBlocks: Preserve
+ReflowComments: false
+
+# Align trailing comments on consecutive lines
+AlignTrailingComments: true
+
+# Keep existing macro/declaration alignment as written
+AlignConsecutiveMacros: true
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false
+
+Standard: c++11
+Cpp11BracedListStyle: false
+IndentCaseLabels: false
+NamespaceIndentation: None
