@@ -33,6 +33,7 @@ set(HAL_SRC "${CUBE_DIR}/STM32F1xx_HAL_Driver/Src")
 add_executable(${TARGET_NAME}
   Core/Src/main.c
   Core/Src/oled_i2c.c
+  Core/Src/font6x8.c
   Core/Src/stm32f1xx_it.c
   Core/Src/system_stm32f1xx.c
   Core/Src/startup_stm32f103xb.s
