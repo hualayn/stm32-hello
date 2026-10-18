@@ -6,10 +6,9 @@
  *
  *                   Hand-written equivalent of the CubeMX-generated code:
  *                     - System clock: 72 MHz from 8 MHz HSE crystal (PLL x9)
- *                     - GPIO:         PA6 push-pull output driving an external
- *                                    LED (active HIGH), 500 ms blink
  *                     - OLED:         0.96" SSD1306 (128x64) on software I2C,
- *                                    PB8 = SCL, PB9 = SDA, shows "hello world"
+ *                                    PB8 = SCL, PB9 = SDA, "hello world" marquee
+ *                                    (enters right, scrolls left, repeats)
  ******************************************************************************
  */
 /* USER CODE END Header */
@@ -56,7 +55,6 @@ int main(void)
   const int16_t msg_w = 6 * 11;    /* 6 px advance x 11 chars = 66 px */
   int16_t x = (int16_t)OLED_WIDTH; /* start fully off-screen right */
   oled_step = 0U;
-  uint32_t step = 0U;
   while (1)
   {
     if (oled_rc == 0)
@@ -116,14 +114,6 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-
-/**
- * @brief GPIO Initialization Function
- *        LED pin (LED_GPIO_Port/LED_Pin, see main.h) -> push-pull output,
- *        initialized ON (HIGH for the external PA6 LED, anode on PA6)
- * @param None
- * @retval None
- */
 
 /**
  * @brief  SysTick-free blocking delay (CPU cycle counting, 72 MHz).

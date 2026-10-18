@@ -7,9 +7,9 @@
 #include "oled_i2c.h"
 #include <string.h>
 
-#define OLED_WIDTH   128U
-#define OLED_HEIGHT  64U
-#define OLED_PAGES   (OLED_HEIGHT / 8U)
+#define OLED_WIDTH  128U
+#define OLED_HEIGHT 64U
+#define OLED_PAGES  (OLED_HEIGHT / 8U)
 
 /* ------------------------------------------------------------------ */
 /* Soft I2C primitives: PB8 = SCL, PB9 = SDA                           */
@@ -22,31 +22,38 @@
 static void delay_us(uint32_t us)
 {
   volatile uint32_t i = us * 7U; /* ~7 cycles/us @ 72 MHz */
-  while (i--) { __NOP(); }
+  while (i--)
+  {
+    __NOP();
+  }
 }
 
 static void scl_high(void)
 {
-  GPIOB->CRH = (GPIOB->CRH & 0xFFFFFFF0UL) | 0x04UL; /* PB8 = CRH[3:0]: input + PU */
+  GPIOB->CRH =
+      (GPIOB->CRH & 0xFFFFFFF0UL) | 0x04UL; /* PB8 = CRH[3:0]: input + PU */
   delay_us(2);
 }
 
 static void scl_low(void)
 {
-  GPIOB->CRH = (GPIOB->CRH & 0xFFFFFFF0UL) | 0x05UL; /* PB8 = CRH[3:0]: OD out */
+  GPIOB->CRH =
+      (GPIOB->CRH & 0xFFFFFFF0UL) | 0x05UL; /* PB8 = CRH[3:0]: OD out */
   GPIOB->ODR &= ~GPIO_PIN_8;
   delay_us(2);
 }
 
 static void sda_high(void)
 {
-  GPIOB->CRH = (GPIOB->CRH & 0xFFFFFF0FUL) | (0x04UL << 4); /* PB9 = CRH[7:4]: input + PU */
+  GPIOB->CRH = (GPIOB->CRH & 0xFFFFFF0FUL) |
+               (0x04UL << 4); /* PB9 = CRH[7:4]: input + PU */
   delay_us(2);
 }
 
 static void sda_low(void)
 {
-  GPIOB->CRH = (GPIOB->CRH & 0xFFFFFF0FUL) | (0x05UL << 4); /* PB9 = CRH[7:4]: OD out */
+  GPIOB->CRH =
+      (GPIOB->CRH & 0xFFFFFF0FUL) | (0x05UL << 4); /* PB9 = CRH[7:4]: OD out */
   GPIOB->ODR &= ~GPIO_PIN_9;
   delay_us(2);
 }
@@ -75,7 +82,14 @@ static void i2c_send_byte(uint8_t b)
 {
   for (uint8_t i = 0; i < 8U; i++)
   {
-    if (b & 0x80U) { sda_high(); } else { sda_low(); }
+    if (b & 0x80U)
+    {
+      sda_high();
+    }
+    else
+    {
+      sda_low();
+    }
     b <<= 1;
     scl_high();
     scl_low();
@@ -122,9 +136,17 @@ int OLED_SendCmd(uint8_t c)
   }
   i2c_start();
   i2c_send_byte((uint16_t)oled_addr << 1);
-  if (i2c_wait_ack()) { i2c_stop(); return 1; }
+  if (i2c_wait_ack())
+  {
+    i2c_stop();
+    return 1;
+  }
   i2c_send_byte(0x00U); /* control byte: command stream */
-  if (i2c_wait_ack()) { i2c_stop(); return 2; }
+  if (i2c_wait_ack())
+  {
+    i2c_stop();
+    return 2;
+  }
   i2c_send_byte(c);
   uint8_t err = i2c_wait_ack();
   i2c_stop();
@@ -163,7 +185,7 @@ int OLED_Init(void)
   }
 
   /* 128x64 init sequence */
-  if (oled_cmd(0xAE) ||           /* display off               */
+  if (oled_cmd(0xAE) ||                   /* display off               */
       oled_cmd(0xD5) || oled_cmd(0x80) || /* clock divide      */
       oled_cmd(0xA8) || oled_cmd(0x3F) || /* multiplex 64      */
       oled_cmd(0xD3) || oled_cmd(0x00) || /* offset 0          */
@@ -174,10 +196,12 @@ int OLED_Init(void)
       oled_cmd(0xC8) ||                   /* com scan reverse  */
       oled_cmd(0xDA) || oled_cmd(0x12) || /* com pins          */
       oled_cmd(0xD9) || oled_cmd(0xF1) || /* precharge         */
-      oled_cmd(0x81) || oled_cmd(0xFF) || /* contrast: max (some panels are invisible at default) */
-      oled_cmd(0xA4) ||                   /* RAM controls disp */
-      oled_cmd(0xA6) ||                   /* normal (not inv)  */
-      oled_cmd(0xAF))                     /* display ON        */
+      oled_cmd(0x81) ||
+      oled_cmd(
+          0xFF) || /* contrast: max (some panels are invisible at default) */
+      oled_cmd(0xA4) || /* RAM controls disp */
+      oled_cmd(0xA6) || /* normal (not inv)  */
+      oled_cmd(0xAF))   /* display ON        */
   {
     return -2; /* display NACKed during init */
   }
@@ -206,9 +230,19 @@ void OLED_Refresh(void)
 
   i2c_start();
   i2c_send_byte((uint16_t)oled_addr << 1);
-  if (i2c_wait_ack()) { i2c_stop(); oled_refresh_fail = 0xFFFEU; return; }
+  if (i2c_wait_ack())
+  {
+    i2c_stop();
+    oled_refresh_fail = 0xFFFEU;
+    return;
+  }
   i2c_send_byte(0x40U); /* control byte: data stream */
-  if (i2c_wait_ack()) { i2c_stop(); oled_refresh_fail = 0xFFFDU; return; }
+  if (i2c_wait_ack())
+  {
+    i2c_stop();
+    oled_refresh_fail = 0xFFFDU;
+    return;
+  }
 
   for (size_t i = 0; i < sizeof(fb); i++)
   {
@@ -364,7 +398,7 @@ static void draw_char(int16_t x, uint8_t y, char c, uint8_t invert)
         }
         else
         {
-          fb[idx] |= bit;  /* set pixel (light on dark bg) */
+          fb[idx] |= bit; /* set pixel (light on dark bg) */
         }
       }
     }
