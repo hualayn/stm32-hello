@@ -63,4 +63,16 @@ void OLED_ShowString(int16_t x, uint8_t y, const char *s);
 /** Draw a string with inverted pixels (dark text on a light background). */
 void OLED_ShowStringInv(int16_t x, uint8_t y, const char *s);
 
+/**
+ * @brief Set one frame-buffer pixel (off-screen coordinates are clipped).
+ * @param x Column 0..127.
+ * @param y Row 0..63 (pixel).
+ */
+void OLED_DrawPixel(int16_t x, int16_t y);
+
+/**
+ * @brief Fill a w x h rectangle in the frame buffer (clipped at edges).
+ */
+void OLED_FillRect(int16_t x, int16_t y, int16_t w, int16_t h);
+
 #endif /* OLED_I2C_H */

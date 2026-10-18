@@ -326,3 +326,24 @@ void OLED_ShowStringInv(int16_t x, uint8_t y, const char *s)
     s++;
   }
 }
+
+void OLED_DrawPixel(int16_t x, int16_t y)
+{
+  if (x < 0 || x >= (int16_t)OLED_WIDTH || y < 0 || y >= (int16_t)OLED_HEIGHT)
+  {
+    return;
+  }
+  uint16_t idx = (uint16_t)((y / 8U) * OLED_WIDTH + x);
+  fb[idx] |= (uint8_t)(1U << (y % 8U));
+}
+
+void OLED_FillRect(int16_t x, int16_t y, int16_t w, int16_t h)
+{
+  for (int16_t j = 0; j < h; j++)
+  {
+    for (int16_t i = 0; i < w; i++)
+    {
+      OLED_DrawPixel(x + i, y + j);
+    }
+  }
+}

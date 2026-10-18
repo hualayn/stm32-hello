@@ -7,8 +7,9 @@
  *                   Hand-written equivalent of the CubeMX-generated code:
  *                     - System clock: 72 MHz from 8 MHz HSE crystal (PLL x9)
  *                     - OLED:         0.96" SSD1306 (128x64) on software I2C,
- *                                    PB8 = SCL, PB9 = SDA, "hello world" marquee
- *                                    (enters right, scrolls left, repeats)
+ *                                    PB8 = SCL, PB9 = SDA: "hello world"
+ *                                    marquee across the top + a 48x48
+ *                                    smiley face that blinks
  ******************************************************************************
  */
 /* USER CODE END Header */
@@ -16,6 +17,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "oled_i2c.h"
+#include "face.h"
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -49,18 +51,20 @@ int main(void)
   oled_rc = OLED_Init();
 
   /* USER CODE BEGIN WHILE */
-  /* "hello world" marquee: enters from the right, scrolls left, exits,
-   * pauses briefly, then starts again. */
+  /* "hello world" marquee across the top (y = 2), 48x48 smiley face
+   * below it (top-left at 40,12); the face blinks every 80 frames. */
   const char *msg = "hello world";
   const int16_t msg_w = 6 * 11;    /* 6 px advance x 11 chars = 66 px */
   int16_t x = (int16_t)OLED_WIDTH; /* start fully off-screen right */
   oled_step = 0U;
+  uint32_t frame = 0U;
   while (1)
   {
     if (oled_rc == 0)
     {
       OLED_FillScreen(0x00);
-      OLED_ShowString(x, 28, msg); /* 8-row font, vertically centered */
+      Face_Smiley(40, 12, (uint8_t)((frame % 80U) >= 75U));
+      OLED_ShowString(x, 2, msg); /* 8-row font, top of the screen */
       OLED_Refresh();              /* ~230 ms I2C push = the frame pace */
       x -= 2;
       if (x + msg_w - 1 < 0) /* last pixel off the left edge */
@@ -70,6 +74,7 @@ int main(void)
       }
     }
     oled_step++;
+    frame++;
   }
   /* USER CODE END WHILE */
 
