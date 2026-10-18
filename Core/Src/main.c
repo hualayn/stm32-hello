@@ -1,17 +1,17 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body - STM32F103C8T6 "Blue Pill" hello world.
-  *
-  *                   Hand-written equivalent of the CubeMX-generated code:
-  *                     - System clock: 72 MHz from 8 MHz HSE crystal (PLL x9)
-  *                     - GPIO:         PA6 push-pull output driving an external
-  *                                    LED (active HIGH), 500 ms blink
-  *                     - OLED:         0.96" SSD1306 (128x64) on software I2C,
-  *                                    PB8 = SCL, PB9 = SDA, shows "hello world"
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body - STM32F103C8T6 "Blue Pill" hello world.
+ *
+ *                   Hand-written equivalent of the CubeMX-generated code:
+ *                     - System clock: 72 MHz from 8 MHz HSE crystal (PLL x9)
+ *                     - GPIO:         PA6 push-pull output driving an external
+ *                                    LED (active HIGH), 500 ms blink
+ *                     - OLED:         0.96" SSD1306 (128x64) on software I2C,
+ *                                    PB8 = SCL, PB9 = SDA, shows "hello world"
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -28,14 +28,13 @@ volatile uint32_t oled_step; /* marquee frame counter (debugger-visible) */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
 static void DelayMs(uint32_t ms);
 void Error_Handler(void);
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -46,9 +45,6 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
 
   /* 0.96" SSD1306 OLED on software I2C (PB8=SCL, PB9=SDA) */
   oled_rc = OLED_Init();
@@ -71,17 +67,9 @@ int main(void)
       x -= 2;
       if (x + msg_w - 1 < 0) /* last pixel off the left edge */
       {
-        DelayMs(1500); /* beat of darkness between passes */
+        DelayMs(100); /* beat of darkness between passes */
         x = (int16_t)OLED_WIDTH;
       }
-    }
-    else
-    {
-      DelayMs(BLINK_PERIOD_MS); /* no display: just wait */
-    }
-    if ((step++ & 1U) == 0U) /* PA6 LED: toggle ~every 500 ms */
-    {
-      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     }
     oled_step++;
   }
@@ -92,19 +80,19 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  *        8 MHz HSE -> PLL x9 = 72 MHz SYSCLK
-  *        AHB = 72 MHz, APB1 = 36 MHz, APB2 = 72 MHz, flash latency 2 ws
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ *        8 MHz HSE -> PLL x9 = 72 MHz SYSCLK
+ *        AHB = 72 MHz, APB1 = 36 MHz, APB2 = 72 MHz, flash latency 2 ws
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1; /* 8 MHz crystal, not divided */
@@ -116,9 +104,8 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-                              | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -131,41 +118,22 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief GPIO Initialization Function
-  *        LED pin (LED_GPIO_Port/LED_Pin, see main.h) -> push-pull output,
-  *        initialized ON (HIGH for the external PA6 LED, anode on PA6)
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  /* Enable the clock of the LED's GPIO port (port-agnostic) */
-  if (LED_GPIO_Port == GPIOA)        { __HAL_RCC_GPIOA_CLK_ENABLE(); }
-  else if (LED_GPIO_Port == GPIOB)   { __HAL_RCC_GPIOB_CLK_ENABLE(); }
-  else if (LED_GPIO_Port == GPIOC)   { __HAL_RCC_GPIOC_CLK_ENABLE(); }
-  else if (LED_GPIO_Port == GPIOD)   { __HAL_RCC_GPIOD_CLK_ENABLE(); }
-  else                               { Error_Handler(); }
-
-  /* Bring the LED on before the pin is released as output */
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-
-  GPIO_InitStruct.Pin   = LED_Pin;
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
-}
+ * @brief GPIO Initialization Function
+ *        LED pin (LED_GPIO_Port/LED_Pin, see main.h) -> push-pull output,
+ *        initialized ON (HIGH for the external PA6 LED, anode on PA6)
+ * @param None
+ * @retval None
+ */
 
 /**
-  * @brief  SysTick-free blocking delay (CPU cycle counting, 72 MHz).
-  *
-  *         This board's clone silicon has a history of corrupted SCB/SysTick
-  *         registers at runtime; HAL_Delay would then hang forever. A pure
-  *         busy-wait cannot hang. Accuracy: +/-20% (fine for a blink).
-  * @param  ms delay in milliseconds
-  * @retval None
-  */
+ * @brief  SysTick-free blocking delay (CPU cycle counting, 72 MHz).
+ *
+ *         This board's clone silicon has a history of corrupted SCB/SysTick
+ *         registers at runtime; HAL_Delay would then hang forever. A pure
+ *         busy-wait cannot hang. Accuracy: +/-20% (fine for a blink).
+ * @param  ms delay in milliseconds
+ * @retval None
+ */
 static void DelayMs(uint32_t ms)
 {
   volatile uint32_t i = ms * 12000U; /* ~12M loop iterations/s at 72 MHz */
@@ -176,9 +144,9 @@ static void DelayMs(uint32_t ms)
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler */

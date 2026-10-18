@@ -1,11 +1,11 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.h
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -13,21 +13,12 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-
-/* Private defines -----------------------------------------------------------*/
-/* Onboard LED of the STM32F103C8T6 "Blue Pill" board: PC13, active LOW.
-   If your board wires the LED to another pin, change these two lines. */
-#define LED_Pin       GPIO_PIN_6
-#define LED_GPIO_Port GPIOA
-
-/* USER CODE BEGIN Private defines */
-#define BLINK_PERIOD_MS   500
-/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
