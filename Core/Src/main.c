@@ -47,7 +47,12 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* 0.96" SSD1306 OLED on software I2C (PB8=SCL, PB9=SDA) */
+  /* 0.96" SSD1306 OLED on software I2C (PB8=SCL, PB9=SDA).
+   * The SSD1306's onboard controller needs time to boot after power-on;
+   * probing right away loses that race and the display never ACKs
+   * (screen stays black until a reset). Wait first, then keep retrying
+   * in the loop until the display is found. */
+  DelayMs(200);
   oled_rc = OLED_Init();
 
   /* USER CODE BEGIN WHILE */
@@ -60,7 +65,13 @@ int main(void)
   uint32_t frame = 0U;
   while (1)
   {
-    if (oled_rc == 0)
+    if (oled_rc != 0)
+    {
+      /* display not (yet) ready after power-on: keep retrying the init */
+      DelayMs(50);
+      oled_rc = OLED_Init();
+    }
+    else
     {
       OLED_FillScreen(0x00);
       Face_Smiley(40, 12, (uint8_t)((frame % 80U) >= 75U));
